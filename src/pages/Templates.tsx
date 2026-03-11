@@ -39,7 +39,7 @@ const Templates = () => {
             <div className={`h-40 bg-gradient-to-br ${t.color} opacity-80 flex items-center justify-center relative`}>
               <FileText className="w-12 h-12 text-foreground/80" />
               <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                <Button size="sm" variant="outline" className="border-foreground/30 text-foreground bg-background/50 hover:bg-background/80" onClick={() => toast.info("Preview coming soon")}>
+                <Button size="sm" variant="outline" className="border-foreground/30 text-foreground bg-background/50 hover:bg-background/80" onClick={() => { setPreviewTemplate(t.name); setPreviewOpen(true); }}>
                   <Eye className="w-4 h-4 mr-1" /> Preview
                 </Button>
               </div>
