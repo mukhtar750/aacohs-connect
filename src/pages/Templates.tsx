@@ -16,6 +16,9 @@ const templates = [
 ];
 
 const Templates = () => {
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewTemplate, setPreviewTemplate] = useState("");
+
   return (
     <DashboardLayout>
       <div className="mb-6">
