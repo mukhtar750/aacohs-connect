@@ -57,6 +57,8 @@ const Templates = () => {
           </motion.div>
         ))}
       </div>
+
+      <TemplatePreview open={previewOpen} onOpenChange={setPreviewOpen} templateName={previewTemplate} />
     </DashboardLayout>
   );
 };
