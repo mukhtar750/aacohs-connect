@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { FileText, Copy, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DashboardLayout from "@/components/DashboardLayout";
+import TemplatePreview from "@/components/TemplatePreview";
 import { toast } from "sonner";
 
 const templates = [
