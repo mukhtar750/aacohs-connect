@@ -17,6 +17,7 @@ const templates = [
 ];
 
 const Templates = () => {
+  const navigate = useNavigate();
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewTemplate, setPreviewTemplate] = useState("");
 
