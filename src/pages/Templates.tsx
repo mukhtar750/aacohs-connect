@@ -50,7 +50,7 @@ const Templates = () => {
               <h4 className="font-display font-semibold text-foreground mb-1">{t.name}</h4>
               <p className="text-sm text-muted-foreground mb-4">{t.desc}</p>
               <div className="flex gap-2">
-                <Button size="sm" className="gradient-primary text-primary-foreground flex-1">Use Template</Button>
+                <Button size="sm" className="gradient-primary text-primary-foreground flex-1" onClick={() => navigate(`/dashboard/builder?template=${encodeURIComponent(t.name)}`)}>Use Template</Button>
                 <Button size="sm" variant="outline" className="border-border text-foreground hover:bg-secondary" onClick={() => toast.success("Template duplicated")}>
                   <Copy className="w-4 h-4" />
                 </Button>
