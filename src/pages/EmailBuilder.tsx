@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Type, Image, MousePointerClick, Minus, Share2, Columns, GripVertical, Eye, Code, Smartphone, Monitor } from "lucide-react";
+import { Type, Image, MousePointerClick, Minus, Share2, Columns, GripVertical, Eye, Code, Smartphone, Monitor, FileCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import DashboardLayout from "@/components/DashboardLayout";
+import { templateHTML } from "@/components/TemplatePreview";
 import { toast } from "sonner";
 
 type Block = { id: string; type: string; content: string };
@@ -16,6 +18,7 @@ const blockTypes = [
   { type: "divider", icon: Minus, label: "Divider" },
   { type: "social", icon: Share2, label: "Social Icons" },
   { type: "columns", icon: Columns, label: "Columns" },
+  { type: "html", icon: FileCode, label: "Custom HTML" },
 ];
 
 const defaultContent: Record<string, string> = {
@@ -26,9 +29,13 @@ const defaultContent: Record<string, string> = {
   divider: "",
   social: "Facebook | Twitter | Instagram",
   columns: "Column 1 | Column 2",
+  html: "<div style=\"padding:16px;background:#f0f9ff;border-radius:8px\"><p style=\"color:#333;font-family:Arial,sans-serif\">Custom HTML block — edit this code</p></div>",
 };
 
 const EmailBuilder = () => {
+  const [searchParams] = useSearchParams();
+  const templateName = searchParams.get("template");
+
   const [blocks, setBlocks] = useState<Block[]>([
     { id: "1", type: "heading", content: "AACOHS Newsletter" },
     { id: "2", type: "text", content: "Dear Community Member,\n\nWe are excited to share the latest updates from Alao Akala College of Health and Science." },
@@ -36,6 +43,23 @@ const EmailBuilder = () => {
   ]);
   const [view, setView] = useState<"visual" | "code">("visual");
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
+  const [rawHTML, setRawHTML] = useState("");
+  const [htmlDirty, setHtmlDirty] = useState(false);
+
+  // Load template if provided via URL param
+  useEffect(() => {
+    if (templateName && templateHTML[templateName]) {
+      setBlocks([{ id: Date.now().toString(), type: "html", content: templateHTML[templateName] }]);
+      toast.success(`"${templateName}" template loaded`);
+    }
+  }, [templateName]);
+
+  // Sync rawHTML when switching to code view
+  useEffect(() => {
+    if (view === "code" && !htmlDirty) {
+      setRawHTML(generateHTML());
+    }
+  }, [view]);
 
   const addBlock = (type: string) => {
     setBlocks([...blocks, { id: Date.now().toString(), type, content: defaultContent[type] }]);
@@ -59,9 +83,21 @@ const EmailBuilder = () => {
         case "divider": return `<hr style="border:none;border-top:1px solid #e5e7eb;margin:16px 0" />`;
         case "social": return `<p style="color:#666;font-family:Arial,sans-serif;font-size:12px;text-align:center;margin:16px 0">${b.content}</p>`;
         case "columns": return `<table width="100%"><tr>${b.content.split("|").map((c) => `<td style="padding:8px;font-family:Arial,sans-serif;font-size:14px;color:#333">${c.trim()}</td>`).join("")}</tr></table>`;
+        case "html": return b.content;
         default: return "";
       }
     }).join("\n");
+  };
+
+  const applyHTMLToBlocks = () => {
+    setBlocks([{ id: Date.now().toString(), type: "html", content: rawHTML }]);
+    setHtmlDirty(false);
+    toast.success("HTML applied to editor");
+  };
+
+  const handleHTMLChange = (value: string) => {
+    setRawHTML(value);
+    setHtmlDirty(true);
   };
 
   return (
@@ -88,14 +124,19 @@ const EmailBuilder = () => {
         <div className="flex-1 flex flex-col min-h-0">
           <div className="flex items-center justify-between mb-3">
             <div className="flex gap-1">
-              <Button size="sm" variant={view === "visual" ? "default" : "ghost"} onClick={() => setView("visual")} className={view === "visual" ? "gradient-primary text-primary-foreground" : "text-muted-foreground"}>
+              <Button size="sm" variant={view === "visual" ? "default" : "ghost"} onClick={() => { if (htmlDirty) applyHTMLToBlocks(); setView("visual"); }} className={view === "visual" ? "gradient-primary text-primary-foreground" : "text-muted-foreground"}>
                 <Eye className="w-4 h-4 mr-1" /> Visual
               </Button>
-              <Button size="sm" variant={view === "code" ? "default" : "ghost"} onClick={() => setView("code")} className={view === "code" ? "gradient-primary text-primary-foreground" : "text-muted-foreground"}>
+              <Button size="sm" variant={view === "code" ? "default" : "ghost"} onClick={() => { setRawHTML(generateHTML()); setHtmlDirty(false); setView("code"); }} className={view === "code" ? "gradient-primary text-primary-foreground" : "text-muted-foreground"}>
                 <Code className="w-4 h-4 mr-1" /> HTML
               </Button>
             </div>
-            <div className="flex gap-1">
+            <div className="flex gap-1 items-center">
+              {view === "code" && htmlDirty && (
+                <Button size="sm" variant="outline" onClick={applyHTMLToBlocks} className="text-xs border-primary text-primary mr-2">
+                  Apply Changes
+                </Button>
+              )}
               <Button size="sm" variant="ghost" onClick={() => setPreviewMode("desktop")} className={previewMode === "desktop" ? "text-primary" : "text-muted-foreground"}>
                 <Monitor className="w-4 h-4" />
               </Button>
@@ -177,6 +218,22 @@ const EmailBuilder = () => {
                         placeholder="Col 1 | Col 2"
                       />
                     )}
+                    {b.type === "html" && (
+                      <div>
+                        <div className="mb-2 flex items-center gap-2">
+                          <FileCode className="w-4 h-4 text-blue-500" />
+                          <span className="text-xs font-medium text-gray-500">Custom HTML Block</span>
+                        </div>
+                        <div dangerouslySetInnerHTML={{ __html: b.content }} />
+                        <textarea
+                          value={b.content}
+                          onChange={(e) => updateBlock(b.id, e.target.value)}
+                          rows={6}
+                          className="w-full mt-2 text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-md p-2 font-mono outline-none resize-y"
+                          placeholder="Enter HTML code..."
+                        />
+                      </div>
+                    )}
                   </div>
                 ))}
                 {/* Footer */}
@@ -188,12 +245,15 @@ const EmailBuilder = () => {
                 </div>
               </div>
             ) : (
-              <Textarea
-                value={generateHTML()}
-                readOnly
-                className="w-full h-full bg-transparent border-none text-foreground font-mono text-xs resize-none p-4"
-                style={{ minHeight: "100%" }}
-              />
+              <div className="flex flex-col h-full">
+                <Textarea
+                  value={rawHTML}
+                  onChange={(e) => handleHTMLChange(e.target.value)}
+                  className="w-full flex-1 bg-transparent border-none text-foreground font-mono text-xs resize-none p-4"
+                  style={{ minHeight: "100%" }}
+                  placeholder="Write or edit your HTML email code here..."
+                />
+              </div>
             )}
           </div>
         </div>
