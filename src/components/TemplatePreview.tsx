@@ -161,11 +161,12 @@ interface TemplatePreviewProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   templateName: string;
+  customHTML?: string;
 }
 
-const TemplatePreview = ({ open, onOpenChange, templateName }: TemplatePreviewProps) => {
+const TemplatePreview = ({ open, onOpenChange, templateName, customHTML }: TemplatePreviewProps) => {
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
-  const html = templateHTML[templateName] || "<p>No preview available</p>";
+  const html = customHTML || templateHTML[templateName] || "<p>No preview available</p>";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

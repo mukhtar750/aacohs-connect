@@ -1,25 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FileText, Copy, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DashboardLayout from "@/components/DashboardLayout";
 import TemplatePreview from "@/components/TemplatePreview";
+import { getTemplates, subscribeTemplates, CustomTemplate } from "@/lib/templateStore";
+import { templateHTML } from "@/components/TemplatePreview";
 import { toast } from "sonner";
-
-const templates = [
-  { id: 1, name: "Newsletter", desc: "Weekly campus newsletter with sections for news, events and updates", color: "from-blue-500 to-cyan-500" },
-  { id: 2, name: "Announcement", desc: "Important institutional announcements with clear call-to-action", color: "from-violet-500 to-purple-500" },
-  { id: 3, name: "Event Invitation", desc: "Beautifully designed event invite with RSVP button", color: "from-emerald-500 to-teal-500" },
-  { id: 4, name: "School Updates", desc: "General updates about campus life, policies and calendars", color: "from-amber-500 to-orange-500" },
-  { id: 5, name: "Admission Notice", desc: "Admission confirmation with important enrollment details", color: "from-pink-500 to-rose-500" },
-  { id: 6, name: "Result Notification", desc: "Exam result notification with links to the student portal", color: "from-indigo-500 to-blue-500" },
-];
 
 const Templates = () => {
   const navigate = useNavigate();
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewTemplate, setPreviewTemplate] = useState("");
+  const [previewHTML, setPreviewHTML] = useState("");
+
+  const templates = useSyncExternalStore(subscribeTemplates, getTemplates);
+
+  const handlePreview = (t: CustomTemplate) => {
+    setPreviewTemplate(t.name);
+    setPreviewHTML(t.html || templateHTML[t.name] || "");
+    setPreviewOpen(true);
+  };
 
   return (
     <DashboardLayout>
@@ -37,11 +39,10 @@ const Templates = () => {
             transition={{ delay: i * 0.1 }}
             className="glass rounded-xl overflow-hidden hover:neon-border transition-all group"
           >
-            {/* Preview area */}
             <div className={`h-40 bg-gradient-to-br ${t.color} opacity-80 flex items-center justify-center relative`}>
               <FileText className="w-12 h-12 text-foreground/80" />
               <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                <Button size="sm" variant="outline" className="border-foreground/30 text-foreground bg-background/50 hover:bg-background/80" onClick={() => { setPreviewTemplate(t.name); setPreviewOpen(true); }}>
+                <Button size="sm" variant="outline" className="border-foreground/30 text-foreground bg-background/50 hover:bg-background/80" onClick={() => handlePreview(t)}>
                   <Eye className="w-4 h-4 mr-1" /> Preview
                 </Button>
               </div>
@@ -60,7 +61,7 @@ const Templates = () => {
         ))}
       </div>
 
-      <TemplatePreview open={previewOpen} onOpenChange={setPreviewOpen} templateName={previewTemplate} />
+      <TemplatePreview open={previewOpen} onOpenChange={setPreviewOpen} templateName={previewTemplate} customHTML={previewHTML} />
     </DashboardLayout>
   );
 };

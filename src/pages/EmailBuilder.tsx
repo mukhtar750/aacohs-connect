@@ -147,6 +147,27 @@ const EmailBuilder = () => {
                   Apply Changes
                 </Button>
               )}
+              <Dialog open={saveOpen} onOpenChange={setSaveOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm" variant="outline" className="border-primary text-primary mr-2">
+                    <Save className="w-4 h-4 mr-1" /> Save as Template
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="glass-strong border-border">
+                  <DialogHeader><DialogTitle className="text-foreground font-display">Save as Template</DialogTitle></DialogHeader>
+                  <div className="space-y-4 mt-4">
+                    <div className="space-y-2">
+                      <Label className="text-foreground">Template Name</Label>
+                      <Input value={saveName} onChange={(e) => setSaveName(e.target.value)} placeholder="e.g. Welcome Email" className="bg-secondary border-border text-foreground" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-foreground">Description</Label>
+                      <Input value={saveDesc} onChange={(e) => setSaveDesc(e.target.value)} placeholder="e.g. Onboarding email for new students" className="bg-secondary border-border text-foreground" />
+                    </div>
+                    <Button onClick={handleSaveTemplate} className="w-full gradient-primary text-primary-foreground">Save Template</Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
               <Button size="sm" variant="ghost" onClick={() => setPreviewMode("desktop")} className={previewMode === "desktop" ? "text-primary" : "text-muted-foreground"}>
                 <Monitor className="w-4 h-4" />
               </Button>
