@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Plus, Search, Upload, Tag, MoreVertical } from "lucide-react";
+import { Plus, Search, Upload, Tag, MoreVertical, FileUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -26,13 +26,48 @@ const groupColors: Record<string, string> = {
   Management: "bg-warning/20 text-warning",
 };
 
+function parseCSV(text: string) {
+  const lines = text.split(/\r?\n/).filter((l) => l.trim());
+  if (lines.length < 2) return [];
+
+  const headerLine = lines[0].toLowerCase();
+  const headers = headerLine.split(",").map((h) => h.trim().replace(/^["']|["']$/g, ""));
+
+  const nameIdx = headers.findIndex((h) => h.includes("name"));
+  const emailIdx = headers.findIndex((h) => h.includes("email"));
+  const groupIdx = headers.findIndex((h) => h.includes("group"));
+  const tagIdx = headers.findIndex((h) => h.includes("tag"));
+
+  if (emailIdx === -1) return [];
+
+  const results: { name: string; email: string; group: string; tag: string }[] = [];
+
+  for (let i = 1; i < lines.length; i++) {
+    const cols = lines[i].split(",").map((c) => c.trim().replace(/^["']|["']$/g, ""));
+    const email = cols[emailIdx]?.trim();
+    if (!email || !email.includes("@")) continue;
+
+    results.push({
+      name: nameIdx >= 0 ? cols[nameIdx] || "" : "",
+      email,
+      group: groupIdx >= 0 ? cols[groupIdx] || "Students" : "Students",
+      tag: tagIdx >= 0 ? cols[tagIdx] || "" : "",
+    });
+  }
+
+  return results;
+}
+
 const Subscribers = () => {
   const [subscribers, setSubscribers] = useState(initialSubscribers);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
+  const [csvOpen, setCsvOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [newGroup, setNewGroup] = useState("");
+  const [csvPreview, setCsvPreview] = useState<{ name: string; email: string; group: string; tag: string }[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filtered = subscribers.filter((s) =>
     s.name.toLowerCase().includes(search.toLowerCase()) || s.email.toLowerCase().includes(search.toLowerCase())
@@ -45,15 +80,55 @@ const Subscribers = () => {
     toast.success("Subscriber added");
   };
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.name.endsWith(".csv")) {
+      toast.error("Please select a CSV file");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const text = ev.target?.result as string;
+      const parsed = parseCSV(text);
+      if (parsed.length === 0) {
+        toast.error("No valid subscribers found. Ensure CSV has an 'email' column.");
+        return;
+      }
+      setCsvPreview(parsed);
+      setCsvOpen(true);
+    };
+    reader.readAsText(file);
+    // Reset input so same file can be re-selected
+    e.target.value = "";
+  };
+
+  const handleImportConfirm = () => {
+    const newSubs = csvPreview.map((s, i) => ({
+      id: Date.now() + i,
+      name: s.name,
+      email: s.email,
+      group: s.group,
+      tag: s.tag,
+      status: "active" as const,
+    }));
+    setSubscribers([...newSubs, ...subscribers]);
+    setCsvPreview([]);
+    setCsvOpen(false);
+    toast.success(`${newSubs.length} subscriber${newSubs.length > 1 ? "s" : ""} imported`);
+  };
+
   return (
     <DashboardLayout>
+      <input ref={fileInputRef} type="file" accept=".csv" className="hidden" onChange={handleFileSelect} />
+
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div className="relative w-full sm:w-80">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input placeholder="Search subscribers..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 bg-secondary border-border text-foreground" />
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="border-border text-foreground hover:bg-secondary">
+          <Button variant="outline" className="border-border text-foreground hover:bg-secondary" onClick={() => fileInputRef.current?.click()}>
             <Upload className="w-4 h-4 mr-2" /> Import CSV
           </Button>
           <Dialog open={open} onOpenChange={setOpen}>
@@ -89,6 +164,49 @@ const Subscribers = () => {
           </Dialog>
         </div>
       </div>
+
+      {/* CSV Import Preview Dialog */}
+      <Dialog open={csvOpen} onOpenChange={setCsvOpen}>
+        <DialogContent className="glass-strong border-border max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-foreground font-display flex items-center gap-2">
+              <FileUp className="w-5 h-5 text-primary" /> Import Preview
+            </DialogTitle>
+          </DialogHeader>
+          <div className="mt-4 space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Found <span className="font-semibold text-foreground">{csvPreview.length}</span> subscriber{csvPreview.length !== 1 ? "s" : ""} in your CSV file.
+            </p>
+            <div className="max-h-60 overflow-y-auto rounded-lg border border-border">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border text-muted-foreground bg-secondary/50">
+                    <th className="text-left py-2 px-3 font-medium">Name</th>
+                    <th className="text-left py-2 px-3 font-medium">Email</th>
+                    <th className="text-left py-2 px-3 font-medium">Group</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {csvPreview.slice(0, 50).map((s, i) => (
+                    <tr key={i} className="border-b border-border/50">
+                      <td className="py-2 px-3 text-foreground">{s.name || "—"}</td>
+                      <td className="py-2 px-3 text-muted-foreground text-xs">{s.email}</td>
+                      <td className="py-2 px-3"><Badge variant="secondary" className={groupColors[s.group] || ""}>{s.group}</Badge></td>
+                    </tr>
+                  ))}
+                  {csvPreview.length > 50 && (
+                    <tr><td colSpan={3} className="py-2 px-3 text-center text-muted-foreground text-xs">...and {csvPreview.length - 50} more</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1 border-border text-foreground" onClick={() => { setCsvOpen(false); setCsvPreview([]); }}>Cancel</Button>
+              <Button className="flex-1 gradient-primary text-primary-foreground" onClick={handleImportConfirm}>Import {csvPreview.length} Subscriber{csvPreview.length !== 1 ? "s" : ""}</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">

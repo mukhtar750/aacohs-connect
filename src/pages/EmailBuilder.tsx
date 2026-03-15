@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Type, Image, MousePointerClick, Minus, Share2, Columns, Eye, Code, Smartphone, Monitor, FileCode } from "lucide-react";
+import { Type, Image, MousePointerClick, Minus, Share2, Columns, Eye, Code, Smartphone, Monitor, FileCode, Save } from "lucide-react";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
@@ -10,6 +10,10 @@ import DashboardLayout from "@/components/DashboardLayout";
 import SortableBlock from "@/components/SortableBlock";
 import { templateHTML } from "@/components/TemplatePreview";
 import { Block, blockTypes, defaultContent, parseHTMLToBlocks, generateHTML } from "@/lib/emailBlocks";
+import { addTemplate } from "@/lib/templateStore";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -30,6 +34,9 @@ const EmailBuilder = () => {
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
   const [rawHTML, setRawHTML] = useState("");
   const [htmlDirty, setHtmlDirty] = useState(false);
+  const [saveOpen, setSaveOpen] = useState(false);
+  const [saveName, setSaveName] = useState("");
+  const [saveDesc, setSaveDesc] = useState("");
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -90,6 +97,16 @@ const EmailBuilder = () => {
     setHtmlDirty(true);
   };
 
+  const handleSaveTemplate = () => {
+    if (!saveName.trim()) { toast.error("Template name is required"); return; }
+    const html = generateHTML(blocks);
+    addTemplate(saveName.trim(), saveDesc.trim() || "Custom saved template", html);
+    toast.success(`Template "${saveName}" saved to library`);
+    setSaveName("");
+    setSaveDesc("");
+    setSaveOpen(false);
+  };
+
   return (
     <DashboardLayout>
       <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-140px)]">
@@ -130,6 +147,27 @@ const EmailBuilder = () => {
                   Apply Changes
                 </Button>
               )}
+              <Dialog open={saveOpen} onOpenChange={setSaveOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm" variant="outline" className="border-primary text-primary mr-2">
+                    <Save className="w-4 h-4 mr-1" /> Save as Template
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="glass-strong border-border">
+                  <DialogHeader><DialogTitle className="text-foreground font-display">Save as Template</DialogTitle></DialogHeader>
+                  <div className="space-y-4 mt-4">
+                    <div className="space-y-2">
+                      <Label className="text-foreground">Template Name</Label>
+                      <Input value={saveName} onChange={(e) => setSaveName(e.target.value)} placeholder="e.g. Welcome Email" className="bg-secondary border-border text-foreground" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-foreground">Description</Label>
+                      <Input value={saveDesc} onChange={(e) => setSaveDesc(e.target.value)} placeholder="e.g. Onboarding email for new students" className="bg-secondary border-border text-foreground" />
+                    </div>
+                    <Button onClick={handleSaveTemplate} className="w-full gradient-primary text-primary-foreground">Save Template</Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
               <Button size="sm" variant="ghost" onClick={() => setPreviewMode("desktop")} className={previewMode === "desktop" ? "text-primary" : "text-muted-foreground"}>
                 <Monitor className="w-4 h-4" />
               </Button>
