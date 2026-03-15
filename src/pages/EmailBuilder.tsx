@@ -10,6 +10,10 @@ import DashboardLayout from "@/components/DashboardLayout";
 import SortableBlock from "@/components/SortableBlock";
 import { templateHTML } from "@/components/TemplatePreview";
 import { Block, blockTypes, defaultContent, parseHTMLToBlocks, generateHTML } from "@/lib/emailBlocks";
+import { addTemplate } from "@/lib/templateStore";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
