@@ -97,6 +97,16 @@ const EmailBuilder = () => {
     setHtmlDirty(true);
   };
 
+  const handleSaveTemplate = () => {
+    if (!saveName.trim()) { toast.error("Template name is required"); return; }
+    const html = generateHTML(blocks);
+    addTemplate(saveName.trim(), saveDesc.trim() || "Custom saved template", html);
+    toast.success(`Template "${saveName}" saved to library`);
+    setSaveName("");
+    setSaveDesc("");
+    setSaveOpen(false);
+  };
+
   return (
     <DashboardLayout>
       <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-140px)]">
