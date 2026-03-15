@@ -34,6 +34,9 @@ const EmailBuilder = () => {
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
   const [rawHTML, setRawHTML] = useState("");
   const [htmlDirty, setHtmlDirty] = useState(false);
+  const [saveOpen, setSaveOpen] = useState(false);
+  const [saveName, setSaveName] = useState("");
+  const [saveDesc, setSaveDesc] = useState("");
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
