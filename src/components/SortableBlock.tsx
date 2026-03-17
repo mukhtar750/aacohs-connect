@@ -136,6 +136,16 @@ const SortableBlock = ({ block: b, onUpdate, onUpdateStyle, onRemove }: Sortable
             className="inline-block px-6 py-3 text-white font-semibold rounded-lg text-sm bg-transparent outline-none text-center"
             style={{ background: b.styles?.background || "linear-gradient(135deg, #3b82f6, #06b6d4)" }}
           />
+          <div className="opacity-0 group-hover:opacity-100 transition-opacity mt-2 flex items-center justify-center gap-2">
+            <label className="text-[10px] text-gray-500">Button Color:</label>
+            <input type="color" value={b.styles?.buttonColor || "#3b82f6"}
+              onChange={(e) => onUpdateStyle(b.id, "background", e.target.value)}
+              className="w-5 h-5 rounded cursor-pointer border border-gray-200 p-0" />
+            <label className="text-[10px] text-gray-500">Link:</label>
+            <input value={b.styles?.href || "#"} onChange={(e) => onUpdateStyle(b.id, "href", e.target.value)}
+              className="w-32 text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded px-2 py-0.5 outline-none"
+              placeholder="https://..." />
+          </div>
         </div>
       )}
 
