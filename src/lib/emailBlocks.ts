@@ -104,13 +104,14 @@ export function parseHTMLToBlocks(html: string): Block[] {
 
 export function generateHTML(blocks: Block[]): string {
   return blocks.map((b) => {
+    const s = b.styles || {};
     switch (b.type) {
-      case "heading": return `<h1 style="color:#1e3a5f;font-family:Arial,sans-serif;font-size:${b.styles?.fontSize || "24px"};margin:0 0 16px">${b.content}</h1>`;
-      case "text": return `<p style="color:#333;font-family:Arial,sans-serif;font-size:${b.styles?.fontSize || "14px"};line-height:1.6;margin:0 0 16px">${b.content.replace(/\n/g, "<br>")}</p>`;
-      case "image": return `<img src="${b.content}" alt="Email image" style="width:${b.styles?.width || "100%"};height:${b.styles?.height || "auto"};border-radius:8px;margin:0 0 16px" />`;
-      case "button": return `<a href="#" style="display:inline-block;padding:12px 24px;background:${b.styles?.background || "linear-gradient(135deg,#3b82f6,#06b6d4)"};color:#fff;text-decoration:none;border-radius:8px;font-family:Arial,sans-serif;font-weight:600;margin:0 0 16px">${b.content}</a>`;
+      case "heading": return `<h1 style="color:${s.color || "#1e3a5f"};font-family:${s.fontFamily || "Arial,sans-serif"};font-size:${s.fontSize || "24px"};font-weight:${s.fontWeight || "bold"};font-style:${s.fontStyle || "normal"};text-decoration:${s.textDecoration || "none"};text-align:${s.textAlign || "left"};background-color:${s.backgroundColor || "transparent"};line-height:${s.lineHeight || "1.4"};padding:${s.padding || "0"};margin:0 0 16px">${b.content}</h1>`;
+      case "text": return `<p style="color:${s.color || "#333"};font-family:${s.fontFamily || "Arial,sans-serif"};font-size:${s.fontSize || "14px"};font-weight:${s.fontWeight || "normal"};font-style:${s.fontStyle || "normal"};text-decoration:${s.textDecoration || "none"};text-align:${s.textAlign || "left"};background-color:${s.backgroundColor || "transparent"};line-height:${s.lineHeight || "1.6"};padding:${s.padding || "0"};margin:0 0 16px">${b.content.replace(/\n/g, "<br>")}</p>`;
+      case "image": return `<img src="${b.content}" alt="Email image" style="width:${s.width || "100%"};height:${s.height || "auto"};border-radius:8px;margin:0 0 16px" />`;
+      case "button": return `<a href="${s.href || "#"}" style="display:inline-block;padding:12px 24px;background:${s.background || "linear-gradient(135deg,#3b82f6,#06b6d4)"};color:#fff;text-decoration:none;border-radius:8px;font-family:Arial,sans-serif;font-weight:600;margin:0 0 16px">${b.content}</a>`;
       case "divider": return `<hr style="border:none;border-top:1px solid #e5e7eb;margin:16px 0" />`;
-      case "social": return `<p style="color:#666;font-family:Arial,sans-serif;font-size:12px;text-align:center;margin:16px 0">${b.content}</p>`;
+      case "social": return `<p style="color:${s.color || "#666"};font-family:${s.fontFamily || "Arial,sans-serif"};font-size:${s.fontSize || "12px"};text-align:center;margin:16px 0">${b.content}</p>`;
       case "columns": return `<table width="100%"><tr>${b.content.split("|").map((c) => `<td style="padding:8px;font-family:Arial,sans-serif;font-size:14px;color:#333">${c.trim()}</td>`).join("")}</tr></table>`;
       case "html": return b.content;
       default: return "";
