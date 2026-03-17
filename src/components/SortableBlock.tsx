@@ -35,13 +35,19 @@ const SortableBlock = ({ block: b, onUpdate, onUpdateStyle, onRemove }: Sortable
         <GripVertical className="w-4 h-4 text-gray-400" />
       </div>
 
-      {/* Remove button */}
-      <button
-        onClick={() => onRemove(b.id)}
-        className="absolute -right-2 -top-2 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
-      >
-        <Trash2 className="w-3 h-3" />
-      </button>
+      {/* Remove + style toggle */}
+      <div className="absolute -right-2 -top-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+        {hasToolbar && (
+          <button onClick={() => setShowToolbar(!showToolbar)}
+            className="w-5 h-5 rounded-full bg-blue-500 text-white text-xs flex items-center justify-center">
+            {showToolbar ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+          </button>
+        )}
+        <button onClick={() => onRemove(b.id)}
+          className="w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
+          <Trash2 className="w-3 h-3" />
+        </button>
+      </div>
 
       {b.type === "heading" && (
         <div>
