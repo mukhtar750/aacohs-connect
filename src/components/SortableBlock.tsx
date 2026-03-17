@@ -1,7 +1,9 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, FileCode, Trash2 } from "lucide-react";
+import { GripVertical, FileCode, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import { useState } from "react";
 import { Block } from "@/lib/emailBlocks";
+import BlockStyleToolbar from "./BlockStyleToolbar";
 
 interface SortableBlockProps {
   block: Block;
