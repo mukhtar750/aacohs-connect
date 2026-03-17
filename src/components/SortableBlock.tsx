@@ -74,13 +74,28 @@ const SortableBlock = ({ block: b, onUpdate, onUpdateStyle, onRemove }: Sortable
       )}
 
       {b.type === "text" && (
-        <textarea
-          value={b.content}
-          onChange={(e) => onUpdate(b.id, e.target.value)}
-          rows={3}
-          className="w-full text-sm text-gray-700 bg-transparent border-none outline-none resize-none"
-          style={{ fontFamily: "Arial, sans-serif", lineHeight: 1.6, fontSize: b.styles?.fontSize || "14px" }}
-        />
+        <div>
+          <textarea
+            value={b.content}
+            onChange={(e) => onUpdate(b.id, e.target.value)}
+            rows={3}
+            className="w-full bg-transparent border-none outline-none resize-none"
+            style={{
+              fontFamily: b.styles?.fontFamily || "Arial, sans-serif",
+              fontSize: b.styles?.fontSize || "14px",
+              color: b.styles?.color || "#333333",
+              fontWeight: b.styles?.fontWeight || "normal",
+              fontStyle: b.styles?.fontStyle || "normal",
+              textDecoration: b.styles?.textDecoration || "none",
+              textAlign: (b.styles?.textAlign as any) || "left",
+              backgroundColor: b.styles?.backgroundColor || "transparent",
+              lineHeight: b.styles?.lineHeight || "1.6",
+              padding: b.styles?.padding || "0px",
+              borderRadius: "4px",
+            }}
+          />
+          {showToolbar && <BlockStyleToolbar block={b} onUpdateStyle={onUpdateStyle} />}
+        </div>
       )}
 
       {b.type === "image" && (
