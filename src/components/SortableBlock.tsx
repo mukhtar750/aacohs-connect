@@ -1,7 +1,9 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, FileCode, Trash2 } from "lucide-react";
+import { GripVertical, FileCode, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import { useState } from "react";
 import { Block } from "@/lib/emailBlocks";
+import BlockStyleToolbar from "./BlockStyleToolbar";
 
 interface SortableBlockProps {
   block: Block;
@@ -11,7 +13,9 @@ interface SortableBlockProps {
 }
 
 const SortableBlock = ({ block: b, onUpdate, onUpdateStyle, onRemove }: SortableBlockProps) => {
+  const [showToolbar, setShowToolbar] = useState(false);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: b.id });
+  const hasToolbar = ["heading", "text", "social"].includes(b.type);
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -31,41 +35,67 @@ const SortableBlock = ({ block: b, onUpdate, onUpdateStyle, onRemove }: Sortable
         <GripVertical className="w-4 h-4 text-gray-400" />
       </div>
 
-      {/* Remove button */}
-      <button
-        onClick={() => onRemove(b.id)}
-        className="absolute -right-2 -top-2 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
-      >
-        <Trash2 className="w-3 h-3" />
-      </button>
+      {/* Remove + style toggle */}
+      <div className="absolute -right-2 -top-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+        {hasToolbar && (
+          <button onClick={() => setShowToolbar(!showToolbar)}
+            className="w-5 h-5 rounded-full bg-blue-500 text-white text-xs flex items-center justify-center">
+            {showToolbar ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+          </button>
+        )}
+        <button onClick={() => onRemove(b.id)}
+          className="w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
+          <Trash2 className="w-3 h-3" />
+        </button>
+      </div>
 
       {b.type === "heading" && (
         <div>
           <input
             value={b.content}
             onChange={(e) => onUpdate(b.id, e.target.value)}
-            className="w-full font-bold text-gray-800 bg-transparent border-none outline-none"
-            style={{ fontFamily: "Arial, sans-serif", fontSize: b.styles?.fontSize || "24px" }}
+            className="w-full bg-transparent border-none outline-none"
+            style={{
+              fontFamily: b.styles?.fontFamily || "Arial, sans-serif",
+              fontSize: b.styles?.fontSize || "24px",
+              color: b.styles?.color || "#1e3a5f",
+              fontWeight: b.styles?.fontWeight || "bold",
+              fontStyle: b.styles?.fontStyle || "normal",
+              textDecoration: b.styles?.textDecoration || "none",
+              textAlign: (b.styles?.textAlign as any) || "left",
+              backgroundColor: b.styles?.backgroundColor || "transparent",
+              lineHeight: b.styles?.lineHeight || "1.4",
+              padding: b.styles?.padding || "0px",
+              borderRadius: "4px",
+            }}
           />
-          <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 mt-1">
-            {["20px", "24px", "28px", "32px", "36px"].map((s) => (
-              <button key={s} onClick={() => onUpdateStyle(b.id, "fontSize", s)}
-                className={`text-[10px] px-1.5 py-0.5 rounded ${b.styles?.fontSize === s ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}>
-                {s}
-              </button>
-            ))}
-          </div>
+          {showToolbar && <BlockStyleToolbar block={b} onUpdateStyle={onUpdateStyle} />}
         </div>
       )}
 
       {b.type === "text" && (
-        <textarea
-          value={b.content}
-          onChange={(e) => onUpdate(b.id, e.target.value)}
-          rows={3}
-          className="w-full text-sm text-gray-700 bg-transparent border-none outline-none resize-none"
-          style={{ fontFamily: "Arial, sans-serif", lineHeight: 1.6, fontSize: b.styles?.fontSize || "14px" }}
-        />
+        <div>
+          <textarea
+            value={b.content}
+            onChange={(e) => onUpdate(b.id, e.target.value)}
+            rows={3}
+            className="w-full bg-transparent border-none outline-none resize-none"
+            style={{
+              fontFamily: b.styles?.fontFamily || "Arial, sans-serif",
+              fontSize: b.styles?.fontSize || "14px",
+              color: b.styles?.color || "#333333",
+              fontWeight: b.styles?.fontWeight || "normal",
+              fontStyle: b.styles?.fontStyle || "normal",
+              textDecoration: b.styles?.textDecoration || "none",
+              textAlign: (b.styles?.textAlign as any) || "left",
+              backgroundColor: b.styles?.backgroundColor || "transparent",
+              lineHeight: b.styles?.lineHeight || "1.6",
+              padding: b.styles?.padding || "0px",
+              borderRadius: "4px",
+            }}
+          />
+          {showToolbar && <BlockStyleToolbar block={b} onUpdateStyle={onUpdateStyle} />}
+        </div>
       )}
 
       {b.type === "image" && (
@@ -106,6 +136,16 @@ const SortableBlock = ({ block: b, onUpdate, onUpdateStyle, onRemove }: Sortable
             className="inline-block px-6 py-3 text-white font-semibold rounded-lg text-sm bg-transparent outline-none text-center"
             style={{ background: b.styles?.background || "linear-gradient(135deg, #3b82f6, #06b6d4)" }}
           />
+          <div className="opacity-0 group-hover:opacity-100 transition-opacity mt-2 flex items-center justify-center gap-2">
+            <label className="text-[10px] text-gray-500">Button Color:</label>
+            <input type="color" value={b.styles?.buttonColor || "#3b82f6"}
+              onChange={(e) => onUpdateStyle(b.id, "background", e.target.value)}
+              className="w-5 h-5 rounded cursor-pointer border border-gray-200 p-0" />
+            <label className="text-[10px] text-gray-500">Link:</label>
+            <input value={b.styles?.href || "#"} onChange={(e) => onUpdateStyle(b.id, "href", e.target.value)}
+              className="w-32 text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded px-2 py-0.5 outline-none"
+              placeholder="https://..." />
+          </div>
         </div>
       )}
 
