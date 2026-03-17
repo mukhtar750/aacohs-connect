@@ -54,17 +54,22 @@ const SortableBlock = ({ block: b, onUpdate, onUpdateStyle, onRemove }: Sortable
           <input
             value={b.content}
             onChange={(e) => onUpdate(b.id, e.target.value)}
-            className="w-full font-bold text-gray-800 bg-transparent border-none outline-none"
-            style={{ fontFamily: "Arial, sans-serif", fontSize: b.styles?.fontSize || "24px" }}
+            className="w-full bg-transparent border-none outline-none"
+            style={{
+              fontFamily: b.styles?.fontFamily || "Arial, sans-serif",
+              fontSize: b.styles?.fontSize || "24px",
+              color: b.styles?.color || "#1e3a5f",
+              fontWeight: b.styles?.fontWeight || "bold",
+              fontStyle: b.styles?.fontStyle || "normal",
+              textDecoration: b.styles?.textDecoration || "none",
+              textAlign: (b.styles?.textAlign as any) || "left",
+              backgroundColor: b.styles?.backgroundColor || "transparent",
+              lineHeight: b.styles?.lineHeight || "1.4",
+              padding: b.styles?.padding || "0px",
+              borderRadius: "4px",
+            }}
           />
-          <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 mt-1">
-            {["20px", "24px", "28px", "32px", "36px"].map((s) => (
-              <button key={s} onClick={() => onUpdateStyle(b.id, "fontSize", s)}
-                className={`text-[10px] px-1.5 py-0.5 rounded ${b.styles?.fontSize === s ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}>
-                {s}
-              </button>
-            ))}
-          </div>
+          {showToolbar && <BlockStyleToolbar block={b} onUpdateStyle={onUpdateStyle} />}
         </div>
       )}
 
