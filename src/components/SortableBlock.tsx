@@ -13,7 +13,9 @@ interface SortableBlockProps {
 }
 
 const SortableBlock = ({ block: b, onUpdate, onUpdateStyle, onRemove }: SortableBlockProps) => {
+  const [showToolbar, setShowToolbar] = useState(false);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: b.id });
+  const hasToolbar = ["heading", "text", "social"].includes(b.type);
 
   const style = {
     transform: CSS.Transform.toString(transform),
