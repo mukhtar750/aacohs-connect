@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { LayoutDashboard, Mail, Users, LayoutTemplate, BarChart3, Settings, LogOut, Menu, X, PenTool } from "lucide-react";
+import aacohsLogo from "@/assets/aacohs-logo.png";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
