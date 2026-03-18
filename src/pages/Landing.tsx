@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Mail, LayoutTemplate, MousePointerClick, Users, BarChart3, Zap, GraduationCap, BookOpen, Stethoscope, Globe } from "lucide-react";
+import aacohsLogo from "@/assets/aacohs-logo.png";
 import { Button } from "@/components/ui/button";
 import ParticlesBackground from "@/components/ParticlesBackground";
 
