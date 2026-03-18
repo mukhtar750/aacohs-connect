@@ -38,9 +38,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       )}>
         <div className="flex items-center gap-3 px-6 py-5 border-b border-border">
-          <div className="w-9 h-9 rounded-lg gradient-primary flex items-center justify-center">
-            <Mail className="w-4 h-4 text-primary-foreground" />
-          </div>
+          <img src={aacohsLogo} alt="AACOHS Logo" className="w-9 h-9 object-contain" />
           <span className="font-display font-bold text-foreground">AACOHS Mail</span>
           <button className="ml-auto lg:hidden text-muted-foreground" onClick={() => setSidebarOpen(false)}>
             <X className="w-5 h-5" />

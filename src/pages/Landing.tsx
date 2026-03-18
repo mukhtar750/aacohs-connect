@@ -34,9 +34,7 @@ const Landing = () => {
       {/* Nav */}
       <nav className="relative z-10 flex items-center justify-between px-6 md:px-12 py-5">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
-            <Mail className="w-5 h-5 text-primary-foreground" />
-          </div>
+          <img src={aacohsLogo} alt="AACOHS Logo" className="w-10 h-10 object-contain" />
           <span className="font-display font-bold text-lg text-foreground">AACOHS Mail</span>
         </div>
         <Link to="/login">
