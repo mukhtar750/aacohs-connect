@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "@inertiajs/react";
 import { Mail, LayoutTemplate, MousePointerClick, Users, BarChart3, Zap, GraduationCap, BookOpen, Stethoscope, Globe } from "lucide-react";
+import aacohsLogo from "@/assets/aacohs-logo.png";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/Logo";
 
@@ -36,7 +37,6 @@ const Landing = () => {
       <nav className="relative z-10 flex items-center justify-between px-6 md:px-12 py-5">
         <div className="flex items-center gap-3">
           <Logo className="w-12 h-12" />
-
           <span className="font-display font-bold text-lg text-foreground">AACOHS Mail</span>
         </div>
         <Link href="/login">

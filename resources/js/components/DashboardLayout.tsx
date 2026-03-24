@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, usePage, router } from "@inertiajs/react";
 import { LayoutDashboard, Mail, Users, LayoutTemplate, BarChart3, Settings, LogOut, Menu, X, PenTool } from "lucide-react";
+import aacohsLogo from "@/assets/aacohs-logo.png";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Logo from "@/components/Logo";
@@ -41,7 +42,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       )}>
         <div className="flex items-center gap-3 px-6 py-5 border-b border-border">
           <Logo className="w-10 h-10" />
-
           <span className="font-display font-bold text-foreground">AACOHS Mail</span>
           <button className="ml-auto lg:hidden text-muted-foreground" onClick={() => setSidebarOpen(false)}>
             <X className="w-5 h-5" />
