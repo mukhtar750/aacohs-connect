@@ -5,6 +5,8 @@ use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\SubscriberController;
 use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\ImageUploadController;
+use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -41,11 +43,11 @@ Route::middleware(['auth'])->group(function () {
         return Inertia::render('Analytics');
     });
 
-    Route::get('/dashboard/settings', function () {
-        return Inertia::render('DashboardSettings');
-    });
+    Route::get('/dashboard/settings', [SettingsController::class, 'index'])->name('settings.index');
+    Route::post('/dashboard/settings', [SettingsController::class, 'update'])->name('settings.update');
 
     // API-like routes for Inertia/React consumption
+    Route::get('api/dashboard/stats', [DashboardController::class, 'stats']);
     Route::apiResource('api/campaigns', CampaignController::class);
     Route::apiResource('api/subscribers', SubscriberController::class);
     Route::apiResource('api/templates', TemplateController::class);

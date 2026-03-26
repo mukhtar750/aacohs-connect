@@ -13,6 +13,14 @@ const Dashboard = () => {
     { label: "Click Rate", value: "0%", icon: MousePointerClick, change: "+0%" },
   ]);
   const [recentCampaigns, setRecentCampaigns] = useState<any[]>([]);
+  const [chartData, setChartData] = useState<any[]>([
+    { month: "Jan", sent: 0, opened: 0, clicked: 0 },
+    { month: "Feb", sent: 0, opened: 0, clicked: 0 },
+    { month: "Mar", sent: 0, opened: 0, clicked: 0 },
+    { month: "Apr", sent: 0, opened: 0, clicked: 0 },
+    { month: "May", sent: 0, opened: 0, clicked: 0 },
+    { month: "Jun", sent: 0, opened: 0, clicked: 0 },
+  ]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,37 +29,24 @@ const Dashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const [campaignsRes, subscribersRes] = await Promise.all([
-        axios.get("/api/campaigns"),
-        axios.get("/api/subscribers"),
-      ]);
-
-      const campaigns = campaignsRes.data;
-      const subscribers = subscribersRes.data;
+      const res = await axios.get("/api/dashboard/stats");
+      const data = res.data;
 
       setStats([
-        { label: "Total Campaigns", value: campaigns.length.toString(), icon: Mail, change: "+0%" },
-        { label: "Subscribers", value: subscribers.length.toLocaleString(), icon: Users, change: "+0%" },
-        { label: "Open Rate", value: "0%", icon: Eye, change: "+0%" },
-        { label: "Click Rate", value: "0%", icon: MousePointerClick, change: "+0%" },
+        { label: "Total Campaigns", value: data.stats.totalCampaigns.toString(), icon: Mail, change: "+0%" },
+        { label: "Subscribers", value: data.stats.totalSubscribers.toLocaleString(), icon: Users, change: "+0%" },
+        { label: "Open Rate", value: data.stats.openRate, icon: Eye, change: "+0%" },
+        { label: "Click Rate", value: data.stats.clickRate, icon: MousePointerClick, change: "+0%" },
       ]);
 
-      setRecentCampaigns(campaigns.slice(0, 5));
+      setChartData(data.chartData);
+      setRecentCampaigns(data.recentCampaigns);
     } catch (error) {
       console.error("Failed to fetch dashboard data", error);
     } finally {
       setLoading(false);
     }
   };
-
-  const chartData = [
-    { month: "Jan", sent: 0, opened: 0, clicked: 0 },
-    { month: "Feb", sent: 0, opened: 0, clicked: 0 },
-    { month: "Mar", sent: 0, opened: 0, clicked: 0 },
-    { month: "Apr", sent: 0, opened: 0, clicked: 0 },
-    { month: "May", sent: 0, opened: 0, clicked: 0 },
-    { month: "Jun", sent: 0, opened: 0, clicked: 0 },
-  ];
 
   return (
     <DashboardLayout>
